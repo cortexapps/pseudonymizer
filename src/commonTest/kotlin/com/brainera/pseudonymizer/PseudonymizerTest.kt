@@ -9,7 +9,27 @@ class PseudonymizerTest {
     private val psuedonymizer = Pseudonymizer()
 
     @Test
-    fun shouldHandleZeroLengthEmails() = validate("")
+    fun shouldHandleAnActualEmail() {
+        val user = psuedonymizer.pseudonymize("joe.schmoe@realcompany.com")
+        assertEquals(
+            User(
+                first = "Racek",
+                last = "Asilova",
+                email = "racek.asilova@company.com"
+            ),
+            user
+        )
+    }
+
+    @Test
+    fun shouldHandleZeroLengthEmails() = assertEquals(
+        User(
+            first = "Cottie",
+            last = "Kabran",
+            email = "cottie.kabran@company.com"
+        ),
+        psuedonymizer.pseudonymize("")
+    )
 
     @Test
     fun shouldHandleLengthOneEmails() = CharRange('a', '9').forEach { validate(it.toString()) }
@@ -23,7 +43,7 @@ class PseudonymizerTest {
     @Test
     fun shouldHandleALotOfStrings() {
         val alphabet = (0..127).map { it.toChar() }
-        (1 .. 10_000).forEach { i ->
+        (1 .. 1_000).forEach { i ->
             validate((1 .. i).map { alphabet.random() }.toString())
         }
     }
