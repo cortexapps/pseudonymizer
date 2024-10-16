@@ -1,11 +1,11 @@
 plugins {
     kotlin("multiplatform") version "2.0.20"
     id("maven-publish")
-    id("io.github.gciatto.kt-npm-publish") version "0.3.2"
+    id("dev.petuska.npm.publish") version "3.4.3"
 }
 
 group = "com.brainera"
-version = "1.0-SNAPSHOT"
+version = "0.0.1"
 
 repositories {
     mavenCentral()
@@ -58,11 +58,33 @@ kotlin {
     }
 }
 
-npmPublishing {
-    token.set(System.getenv("NPM_AUTH_TOKEN"))
+npmPublish {
+    registries {
+        register("github") {
+            uri.set("https://npm.pkg.github.com")
+            authToken.set(System.getenv("GITHUB_PASSWORD"))
+        }
+    }
 
-    liftPackageJson {
-        license = "Apache-2.0"
-        name = "@cortexapps/pseudonymizer"
+    packages {
+       named("js") {
+           packageJson {
+               license = "Apache-2.0"
+               name = "@cortexapps/pseudonymizer"
+           }
+       }
+    }
+}
+
+publishing {
+    repositories {
+        maven {
+            name = "GithubPackages"
+            url = uri("https://maven.pkg.github.com/cortexapps/pseudonymizer")
+            credentials {
+                username = project.findProperty("gpr.user") as? String ?: System.getenv("GITHUB_USERNAME")
+                password = project.findProperty("gpr.key") as? String ?: System.getenv("GITHUB_PASSWORD")
+            }
+        }
     }
 }
